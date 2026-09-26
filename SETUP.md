@@ -59,16 +59,14 @@ npx serve .
 ```
 
 ### Для сборки мобильного приложения:
+
+Готовый iOS-проект уже находится в `ios/ios/App`. На Mac из корня репозитория:
+
 ```bash
-npm install -g @capacitor/cli
-npm init
-npm install @capacitor/core @capacitor/ios @capacitor/android
-npx cap init "Аукцион Монет" "com.твоядомен.auction"
-npx cap add ios
-npx cap add android
-npx cap sync
-npx cap open ios    # открывает Xcode
+bash ios/setup-ios.sh
 ```
+
+Подробности и требования: [XCODE-START.md](XCODE-START.md).
 
 ## Архитектура
 

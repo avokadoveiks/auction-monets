@@ -11,7 +11,7 @@
 ## Быстрый старт
 1. Открой `auction-game.html` в браузере — сразу работает в локальном режиме с ботами
 2. Для мультиплеера: создай проект на [supabase.com](https://supabase.com), вставь URL и ключ в начало JS
-3. Для iOS: смотри `SETUP.md`
+3. Для iOS: открой `Open-Xcode.command` на Mac. Инструкция: [XCODE-START.md](XCODE-START.md).
 
 ## Файлы
 | Файл | Описание |

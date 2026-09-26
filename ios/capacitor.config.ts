@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Аукцион Монет',
   webDir: 'www',
   ios: {
-    contentInset: 'automatic',
+    contentInset: 'never',             // safe-area отступы задаёт CSS игры
     allowsLinkPreview: false,
     scrollEnabled: false,              // игра не должна прокручиваться
     preferredContentMode: 'mobile',
