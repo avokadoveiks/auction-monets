@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Аукцион Монет — мобильная аукцион-игра",
   "scripts": {
-    "build":     "cp src/index.html www/index.html",
+    "build":     "node scripts/build.mjs",
     "sync":      "npm run build && npx cap sync",
     "ios":       "npm run sync && npx cap open ios",
     "android":   "npm run sync && npx cap open android",

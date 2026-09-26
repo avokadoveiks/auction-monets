@@ -1,108 +1,36 @@
 #!/bin/bash
-# =================================================================
-# setup-ios.sh — Один запуск → готовый Xcode проект
-# Запускать на Mac с установленным Xcode
-# =================================================================
+# Run from any directory on a Mac with Xcode, Node.js and CocoaPods.
+set -euo pipefail
+cd "$(dirname "$0")"
 
-set -e
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
-ok()  { echo -e "${GREEN}✓ $1${NC}"; }
-err() { echo -e "${RED}✗ $1${NC}"; exit 1; }
-inf() { echo -e "${YELLOW}→ $1${NC}"; }
+fail() { echo "Ошибка: $1" >&2; exit 1; }
+[ "$(uname -s)" = "Darwin" ] || fail "Для сборки iOS нужен Mac с Xcode."
+command -v node >/dev/null || fail "Установи Node.js: https://nodejs.org"
+command -v npm >/dev/null || fail "npm не найден."
+command -v pod >/dev/null || fail "Установи CocoaPods: https://guides.cocoapods.org/using/getting-started.html"
+xcodebuild -version >/dev/null 2>&1 || fail "Установи Xcode и выбери его в Xcode → Settings → Locations → Command Line Tools."
 
-echo ""
-echo "  🪙  АУКЦИОН МОНЕТ — iOS сборка"
-echo "  ================================"
-echo ""
+echo "Установка зависимостей..."
+npm ci
+npm run build
 
-# ── 1. Проверяем инструменты ──────────────────────────────────
-inf "Проверяем зависимости..."
-command -v node  >/dev/null || err "Node.js не установлен → https://nodejs.org"
-command -v xcode-select >/dev/null || err "Xcode не установлен → App Store"
-xcodebuild -version >/dev/null 2>&1 || err "Xcode Command Line Tools нужны: xcode-select --install"
-ok "Node $(node -v) | Xcode $(xcodebuild -version | head -1)"
-
-# ── 2. Создаём структуру ─────────────────────────────────────
-inf "Создаём папки..."
-mkdir -p www src
-
-# Копируем игру в www
-if [ -f "src/index.html" ]; then
-    cp src/index.html www/index.html
-    ok "index.html скопирован"
-elif [ -f "index.html" ]; then
-    cp index.html www/index.html
-    ok "index.html скопирован"
-else
-    err "Не найден index.html — положи файл игры рядом со скриптом"
+if [ ! -d "ios/App" ]; then
+  npx cap add ios
 fi
 
-# ── 3. Устанавливаем пакеты ───────────────────────────────────
-inf "npm install..."
-npm install
-ok "Пакеты установлены"
-
-# ── 4. Инициализируем Capacitor если нужно ────────────────────
-if [ ! -d "ios" ]; then
-    inf "Добавляем iOS платформу..."
-    npx cap add ios
-    ok "iOS платформа добавлена"
-else
-    ok "iOS платформа уже есть"
-fi
-
-# ── 5. Синхронизируем код в Xcode ─────────────────────────────
-inf "Синхронизируем в Xcode проект..."
-npx cap sync ios
-ok "Синхронизация готова"
-
-# ── 6. Копируем иконки ────────────────────────────────────────
-ICON_DIR="ios/App/App/Assets.xcassets/AppIcon.appiconset"
-if [ -d "icons" ] && [ -d "$ICON_DIR" ]; then
-    inf "Копируем иконки приложения..."
-    cp icons/*.png "$ICON_DIR/"
-    cp icons/Contents.json "$ICON_DIR/"
-    ok "Иконки установлены (${ICON_DIR})"
-else
-    echo "  ℹ  Иконки: положи папку 'icons' рядом со скриптом"
-fi
-
-# ── 7. Настройки Info.plist ───────────────────────────────────
+# Keep the existing landscape layout; CSS handles safe-area insets.
 PLIST="ios/App/App/Info.plist"
-inf "Настраиваем Info.plist..."
+for KEY in UISupportedInterfaceOrientations 'UISupportedInterfaceOrientations~ipad'; do
+  /usr/libexec/PlistBuddy -c "Delete :$KEY" "$PLIST" 2>/dev/null || true
+  /usr/libexec/PlistBuddy -c "Add :$KEY array" "$PLIST"
+  /usr/libexec/PlistBuddy -c "Add :$KEY:0 string UIInterfaceOrientationLandscapeLeft" "$PLIST"
+  /usr/libexec/PlistBuddy -c "Add :$KEY:1 string UIInterfaceOrientationLandscapeRight" "$PLIST"
+done
+/usr/libexec/PlistBuddy -c "Set :UIStatusBarHidden true" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :UIStatusBarHidden bool true" "$PLIST"
+/usr/libexec/PlistBuddy -c "Set :UIViewControllerBasedStatusBarAppearance false" "$PLIST"
+/usr/libexec/PlistBuddy -c "Set :UIRequiresFullScreen true" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :UIRequiresFullScreen bool true" "$PLIST"
 
-# Запрет ротации — только landscape (игра горизонтальная)
-/usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations" "$PLIST" 2>/dev/null || true
-/usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations array" "$PLIST"
-/usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationLandscapeLeft"  "$PLIST"
-/usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:1 string UIInterfaceOrientationLandscapeRight" "$PLIST"
-
-# iPad landscape
-/usr/libexec/PlistBuddy -c "Delete :UISupportedInterfaceOrientations~ipad" "$PLIST" 2>/dev/null || true
-/usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations~ipad array" "$PLIST"
-/usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations~ipad:0 string UIInterfaceOrientationLandscapeLeft"  "$PLIST"
-/usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations~ipad:1 string UIInterfaceOrientationLandscapeRight" "$PLIST"
-
-# Прячем статус-бар на iPhone
-/usr/libexec/PlistBuddy -c "Set :UIStatusBarHidden true" "$PLIST" 2>/dev/null || \
-/usr/libexec/PlistBuddy -c "Add :UIStatusBarHidden bool true"  "$PLIST"
-
-# Имя приложения
-/usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'Аукцион Монет'" "$PLIST" 2>/dev/null || \
-/usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string 'Аукцион Монет'" "$PLIST"
-
-ok "Info.plist настроен (landscape, без статус-бара)"
-
-# ── 8. Открываем Xcode ───────────────────────────────────────
-echo ""
-inf "Открываем Xcode..."
+npx cap sync ios
+echo "Открываю Xcode. Для симулятора выбери iPhone и нажми Run."
+echo "Для своего iPhone выбери Apple Team в Signing & Capabilities."
 npx cap open ios
-echo ""
-echo "  ✅  ГОТОВО!"
-echo ""
-echo "  В Xcode:"
-echo "  1. Выбери Team (Signing & Capabilities)"
-echo "  2. Поменяй Bundle ID: com.auktsionmonet.app → твой"
-echo "  3. Product → Archive → Distribute App"
-echo ""
-echo "  Документация: https://capacitorjs.com/docs/ios"

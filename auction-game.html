@@ -29,63 +29,29 @@
     background:radial-gradient(ellipse at 50% 18%, #131c2d 0%, #05070b 65%);
     color:var(--text);
     font-family:"Inter", system-ui, -apple-system, sans-serif;
-    display:flex; align-items:center; justify-content:center;
-    padding:22px;
+    padding:0;
     overflow:hidden;
   }
 
-  /* ================= Phone emulator shell ================= */
+  /* ================= Full-screen application ================= */
   .device{
-    width:min(94vw, 820px, calc(84vh * 2.16));
-    aspect-ratio:2.16 / 1;
-    position:relative;
-    background:linear-gradient(155deg, #1c1f24, #050608);
-    border-radius:40px;
-    padding:16px;
-    box-shadow:
-      0 40px 80px rgba(0,0,0,0.55),
-      inset 0 0 0 1px rgba(255,255,255,0.05);
-  }
-  .device::before{
-    /* physical button on the top edge */
-    content:""; position:absolute; top:-3px; left:38%; width:60px; height:5px;
-    background:#111318; border-radius:0 0 4px 4px;
-  }
-  .device::after{
-    /* physical button on the bottom edge */
-    content:""; position:absolute; bottom:-3px; left:38%; width:60px; height:5px;
-    background:#111318; border-radius:4px 4px 0 0;
-  }
-  .side-btn{ position:absolute; width:4px; background:#111318; border-radius:2px 0 0 2px; }
-  .side-btn.power{ right:-4px; top:30%; height:46px; border-radius:0 2px 2px 0; }
-  .side-btn.vol-up{ left:-4px; top:26%; height:30px; }
-  .side-btn.vol-down{ left:-4px; top:40%; height:30px; }
-
-  .camera{
-    position:absolute; left:6px; top:50%; transform:translateY(-50%);
-    width:9px; height:9px; border-radius:50%;
-    background:radial-gradient(circle at 35% 35%, #3a4356, #05070a 70%);
-    box-shadow:0 0 0 2px #05070a;
-    z-index:5;
+    position:fixed;
+    inset:0;
+    padding:env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+            env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    background:var(--bg);
   }
 
   .screen{
     position:relative;
     width:100%; height:100%;
-    border-radius:24px;
+    border-radius:0;
     overflow:hidden;
     background:var(--bg);
   }
 
-  .home-indicator{
-    position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
-    width:84px; height:4px; border-radius:3px;
-    background:rgba(255,255,255,0.28);
-    z-index:80; cursor:pointer;
-  }
-
   /* ================= In-screen game UI ================= */
-  .app{ position:absolute; top:22px; left:0; right:0; bottom:0; display:flex; flex-direction:column; }
+  .app{ position:absolute; inset:0; display:flex; flex-direction:column; }
 
   header{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -659,22 +625,8 @@
     border-radius:50%; background:var(--gold); cursor:pointer;
   }
   #confettiCanvas{
-    position:absolute; inset:0; z-index:60; pointer-events:none; border-radius:24px;
+    position:absolute; inset:0; z-index:60; pointer-events:none;
   }
-
-  .caption{
-    position:fixed; bottom:10px; left:0; right:0; text-align:center;
-    color:#5c667b; font-size:11.5px; letter-spacing:0.2px; pointer-events:none;
-  }
-
-  /* ================= Status bar (always on top) ================= */
-  .status-bar{
-    position:absolute; top:0; left:0; right:0; height:22px; z-index:70;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:0 16px; font-size:10.5px; font-weight:600; color:#f4f2ea;
-    font-family:"Inter", sans-serif; pointer-events:none;
-  }
-  .status-bar .icons{ display:flex; align-items:center; gap:5px; font-size:10px; }
 
   /* ================= Sign-in screen ================= */
   .view-signin{
@@ -710,35 +662,9 @@
   }
   .signin-cancel{ font-size:9.5px; color:var(--muted); background:none; border:none; cursor:pointer; }
 
-  /* ================= Views: lock / home / app ================= */
+  /* ================= Views: sign-in / app ================= */
   .view{ position:absolute; inset:0; display:none; flex-direction:column; }
   .view.active{ display:flex; }
-
-  .view-lock{
-    align-items:center; justify-content:center; gap:4px;
-    background:radial-gradient(ellipse at 50% 30%, #17223a 0%, var(--bg) 70%);
-    cursor:pointer; text-align:center; padding-top:22px;
-  }
-  .view-lock .lock-time{ font-family:"Oswald", sans-serif; font-size:44px; font-weight:600; letter-spacing:1px; }
-  .view-lock .lock-date{ font-size:12px; color:var(--muted); text-transform:capitalize; }
-  .view-lock .lock-hint{ margin-top:22px; font-size:10.5px; color:#6c7690; letter-spacing:0.3px; }
-
-  .view-home{
-    padding:34px 18px 24px; align-content:flex-start;
-    display:none; flex-wrap:wrap; gap:16px;
-    background:radial-gradient(ellipse at 30% 0%, #182238 0%, var(--bg) 60%);
-  }
-  .view-home.active{ display:flex; }
-  .app-icon{ display:flex; flex-direction:column; align-items:center; gap:4px; width:56px; cursor:pointer; border:none; background:none; }
-  .app-icon .tile{
-    width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-    font-size:20px; background:linear-gradient(160deg, var(--panel-hi), var(--panel)); border:1px solid var(--border);
-  }
-  .app-icon.launcher .tile{
-    background:radial-gradient(circle at 32% 28%, #ffe9b8, var(--gold) 55%, var(--gold-dim) 100%);
-  }
-  .app-icon span.label{ font-size:8.5px; color:var(--text); }
-  .app-icon.dummy{ opacity:0.55; cursor:default; }
 
   .view-app{ /* offset handled by .app itself */ }
 
@@ -750,15 +676,7 @@
 <body>
 
 <div class="device">
-  <span class="side-btn power" id="powerBtn" style="cursor:pointer; pointer-events:auto;"></span>
-  <span class="side-btn vol-up"></span>
-  <span class="side-btn vol-down"></span>
   <div class="screen">
-    <span class="camera"></span>
-    <div class="status-bar">
-      <span class="time" id="statusTime">--:--</span>
-      <span class="icons">📶 🔋100%</span>
-    </div>
 
     <div class="view view-signin" id="viewSignin" style="display:none;flex-direction:column;">
       <div class="signin-coin">🪙</div>
@@ -776,21 +694,6 @@
       <input class="signin-input" id="signinName" type="text" placeholder="Никнейм" maxlength="18">
       <button class="signin-submit" id="signinSubmit" type="button">Войти</button>
       <button class="signin-cancel" id="signinCancel" type="button">Назад</button>
-    </div>
-
-    <div class="view view-lock active" id="viewLock">
-      <div class="lock-time" id="lockTime">--:--</div>
-      <div class="lock-date" id="lockDate"></div>
-      <div class="lock-hint">Нажмите, чтобы разблокировать</div>
-    </div>
-
-    <div class="view view-home" id="viewHome">
-      <button class="app-icon launcher" id="launchApp" type="button">
-        <span class="tile">🪙</span><span class="label">Аукцион</span>
-      </button>
-      <div class="app-icon dummy"><span class="tile">💬</span><span class="label">Чаты</span></div>
-      <div class="app-icon dummy"><span class="tile">⚙️</span><span class="label">Настройки</span></div>
-      <div class="app-icon dummy"><span class="tile">📷</span><span class="label">Камера</span></div>
     </div>
 
     <div class="view view-app" id="viewApp">
@@ -944,10 +847,8 @@
     <div class="onboard" id="onboard">
       <div class="onboard-card" id="onboardCard"></div>
     </div>
-    <div class="home-indicator" id="homeIndicator"></div>
   </div>
 </div>
-<div class="caption">Эмулятор телефона · нажмите на экран блокировки, затем на значок «Аукцион»</div>
 
 <script>
 (function(){
@@ -1013,7 +914,7 @@
   }catch(e){}
 
   function saveAccount(){ try{ localStorage.setItem("auction_account", JSON.stringify(account)); }catch(e){} }
-  function signOut(){ account = null; try{ localStorage.removeItem("auction_account"); }catch(e){} setView("signin"); }
+  function signOut(){ account = null; clearTimeout(welcomeTimer); gameWelcomeShown = false; try{ localStorage.removeItem("auction_account"); }catch(e){} setView("signin"); }
 
   var START_BALANCE = 9999;
   var balance = START_BALANCE;
@@ -1314,6 +1215,7 @@
     if(!sbPlayer) return;
     account = {name: sbPlayer.username}; saveAccount(); applyAccount();
     balance = sbPlayer.coins; saveBalance();
+    enterGame();
     render();
     subscribeRealtime();
     subscribeLots();
@@ -2093,41 +1995,33 @@
   document.getElementById("chatSend").addEventListener("click", function(){ sbReady() ? sbSendChat() : sendChat(); });
   chatInput.addEventListener("keydown", function(e){ if(e.key === "Enter"){ sbReady() ? sbSendChat() : sendChat(); } });
 
-  // ---- phone chrome: clock ----
-  var statusTime = document.getElementById("statusTime");
-  var lockTime = document.getElementById("lockTime");
-  var lockDate = document.getElementById("lockDate");
-
-  function updateClock(){
-    var d = new Date();
-    var hh = String(d.getHours()).padStart(2,"0");
-    var mm = String(d.getMinutes()).padStart(2,"0");
-    var t = hh + ":" + mm;
-    statusTime.textContent = t;
-    lockTime.textContent = t;
-    try{
-      lockDate.textContent = d.toLocaleDateString("ru-RU", {weekday:"long", day:"numeric", month:"long"});
-    }catch(e){ lockDate.textContent = ""; }
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
-
-  // ---- phone chrome: lock / home / app views ----
+  // ---- Direct entry: sign-in / game ----
   var views = {
     signin: document.getElementById("viewSignin"),
-    lock: document.getElementById("viewLock"),
-    home: document.getElementById("viewHome"),
     app: document.getElementById("viewApp")
   };
   var signinModal = document.getElementById("signinModal");
+  var gameWelcomeShown = false;
+  var welcomeTimer;
 
   function setView(name){
     Object.keys(views).forEach(function(k){
       var el = views[k];
+      el.classList.toggle("active", k === name);
       el.style.display = (k === name) ? "flex" : "none";
     });
   }
-  setView(account ? "lock" : "signin");
+  setView(account ? "app" : "signin");
+
+  function enterGame(){
+    setView("app");
+    if(gameWelcomeShown) return;
+    gameWelcomeShown = true;
+    welcomeTimer = setTimeout(function(){
+      if(!onboarded) startOnboard();
+      else showDailyIfNeeded();
+    }, 600);
+  }
 
   // sign-in flow
   document.getElementById("googleBtn").addEventListener("click", function(){
@@ -2139,33 +2033,16 @@
   function doSignin(){
     var name = document.getElementById("signinName").value.trim();
     if(!name) return;
-    var isNew = !account;
     account = {name:name};
     saveAccount();
     applyAccount();
     signinModal.style.display = "none";
-    setView("lock");
+    enterGame();
     render();
-    if(isNew && !onboarded){
-      setTimeout(startOnboard, 800);
-    } else {
-      setTimeout(showDailyIfNeeded, 600);
-    }
   }
   document.getElementById("signinSubmit").addEventListener("click", doSignin);
   document.getElementById("signinName").addEventListener("keydown", function(e){ if(e.key==="Enter") doSignin(); });
 
-  views.lock.addEventListener("click", function(){
-    setView("home");
-    if(!onboarded){ setTimeout(startOnboard, 400); onboarded = true; }
-    setTimeout(showDailyIfNeeded, 600);
-  });
-  document.getElementById("launchApp").addEventListener("click", function(){ setView("app"); });
-  document.getElementById("homeIndicator").addEventListener("click", function(){
-    if(views.app.classList.contains("active")) setView("home");
-    else if(views.lock.classList.contains("active")) setView("home");
-  });
-  document.getElementById("powerBtn").addEventListener("click", function(){ setView("lock"); });
 
   // add sign-out to the brand name (long-press or dblclick)
   document.querySelector(".brand").addEventListener("dblclick", function(){
@@ -2626,7 +2503,9 @@
 
   function finishOnboard(){
     onboard.classList.remove("active");
+    onboarded = true;
     try{ localStorage.setItem("auction_onboarded","1"); }catch(e){}
+    showDailyIfNeeded();
   }
 
   function startOnboard(){
@@ -2640,6 +2519,7 @@
   try{ onboarded = !!localStorage.getItem("auction_onboarded"); }catch(e){}
 
 
+  if(account) enterGame();
   initSupabase();
   checkSeasonEnd();
 
